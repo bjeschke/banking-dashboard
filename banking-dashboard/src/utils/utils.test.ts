@@ -12,7 +12,6 @@ import {
   downloadFile,
 } from './index';
 import { Transaction, TransactionFilter } from '../types';
-import { setLocale, SUPPORTED_LOCALES } from '../config';
 
 describe('generateId', () => {
   it('should generate a unique ID with txn prefix', () => {
@@ -28,9 +27,9 @@ describe('generateId', () => {
 });
 
 describe('formatCurrency', () => {
-  it('should format positive numbers as EUR currency (default locale)', () => {
+  it('should format positive numbers as EUR currency', () => {
     const result = formatCurrency(1234.56);
-    expect(result).toContain('1.234,56');
+    expect(result).toContain('1234,56');
     expect(result).toContain('€');
   });
 
@@ -48,41 +47,17 @@ describe('formatCurrency', () => {
     const result = formatCurrency(1000000);
     expect(result).toContain('1.000.000,00');
   });
-
-  it('should format with USD when locale is en-US', () => {
-    setLocale('en-US');
-    const result = formatCurrency(1234.56);
-    expect(result).toContain('$');
-    expect(result).toContain('1,234.56');
-  });
-
-  it('should accept locale override parameter', () => {
-    const result = formatCurrency(1000, SUPPORTED_LOCALES['en-GB']);
-    expect(result).toContain('£');
-    expect(result).toContain('1,000.00');
-  });
 });
 
 describe('formatDate', () => {
-  it('should format ISO date string to German locale', () => {
+  it('should format ISO date string to Spanish locale', () => {
     const result = formatDate('2024-12-14');
-    expect(result).toBe('14.12.2024');
+    expect(result).toBe('14/12/2024');
   });
 
   it('should handle different dates', () => {
     const result = formatDate('2024-01-01');
-    expect(result).toBe('01.01.2024');
-  });
-
-  it('should format with US locale when set', () => {
-    setLocale('en-US');
-    const result = formatDate('2024-12-14');
-    expect(result).toBe('12/14/2024');
-  });
-
-  it('should accept locale override parameter', () => {
-    const result = formatDate('2024-12-14', SUPPORTED_LOCALES['en-GB']);
-    expect(result).toBe('14/12/2024');
+    expect(result).toBe('01/01/2024');
   });
 });
 

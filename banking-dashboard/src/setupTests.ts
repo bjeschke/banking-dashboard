@@ -1,10 +1,4 @@
 import '@testing-library/jest-dom';
-import { setLocale } from './config';
-
-// Reset locale to default before each test
-beforeEach(() => {
-  setLocale('de-DE');
-});
 
 // Mock localStorage
 const localStorageMock = (() => {

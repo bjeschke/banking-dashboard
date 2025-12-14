@@ -1,22 +1,23 @@
 import { Transaction, TransactionFilter } from '../types';
-import { getLocale, LocaleConfig } from '../config';
 
-// quick id generator - timestamp + random should be unique enough for our use case
+// quick id generator
 export function generateId(): string {
   return `txn-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function formatCurrency(amount: number, override?: LocaleConfig): string {
-  const cfg = override || getLocale();
-  return new Intl.NumberFormat(cfg.locale, {
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: cfg.currency,
+    currency: 'EUR',
   }).format(amount);
 }
 
-export function formatDate(dateStr: string, override?: LocaleConfig): string {
-  const cfg = override || getLocale();
-  return new Date(dateStr).toLocaleDateString(cfg.locale, cfg.dateFormat);
+export function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 }
 
 export function getTodayDate(): string {
