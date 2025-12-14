@@ -1,0 +1,178 @@
+.balance-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* ============================================
+   MAIN BALANCE CARD - Premium Design
+   ============================================ */
+.balance-card {
+  background: linear-gradient(145deg, #0F2744 0%, #0A1628 100%);
+  color: #FFFFFF;
+  padding: var(--spacing-8);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+  transition: background var(--transition-slow);
+}
+
+[data-theme="dark"] .balance-card {
+  background: linear-gradient(145deg, #1E293B 0%, #0F172A 100%);
+}
+
+.balance-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.balance-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-accent-gold), var(--color-accent-gold-light), var(--color-accent-gold));
+}
+
+.balance-card h2 {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-2);
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.balance-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.balance-value.positive {
+  color: var(--color-success-muted);
+}
+
+.balance-value.negative {
+  color: var(--color-danger-muted);
+}
+
+.balance-kes {
+  font-size: var(--font-size-lg);
+  opacity: 0.7;
+  margin-top: var(--spacing-1);
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================
+   SUMMARY CARDS
+   ============================================ */
+.balance-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+}
+
+.summary-item {
+  background: var(--bg-card);
+  padding: var(--spacing-5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color-light);
+  transition: transform var(--transition-base), box-shadow var(--transition-base), background var(--transition-slow);
+}
+
+.summary-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--bg-card-hover);
+}
+
+.summary-item .label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: var(--spacing-2);
+  font-weight: 500;
+}
+
+.summary-item .value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+}
+
+.summary-item .value.positive {
+  color: var(--color-success-dark);
+}
+
+.summary-item .value.negative {
+  color: var(--color-danger-dark);
+}
+
+.summary-item .value-kes {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--spacing-1);
+}
+
+/* Income Card Accent */
+.summary-item:first-child {
+  border-left: 3px solid var(--color-success);
+}
+
+/* Expense Card Accent */
+.summary-item:last-child {
+  border-left: 3px solid var(--color-danger);
+}
+
+/* ============================================
+   UNDO BUTTON
+   ============================================ */
+.undo-btn {
+  padding: var(--spacing-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  transition: all var(--transition-base);
+}
+
+.undo-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.undo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.undo-btn::before {
+  content: '\21B6';
+  font-size: var(--font-size-base);
+}

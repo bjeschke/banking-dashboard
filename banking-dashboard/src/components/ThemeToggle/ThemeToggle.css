@@ -1,0 +1,100 @@
+/* ============================================
+   THEME TOGGLE SWITCH
+   ============================================ */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 4px;
+  border-radius: var(--radius-lg);
+}
+
+/* Track */
+.theme-toggle-track {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  transition: background var(--transition-base);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Icons */
+.theme-toggle-icon {
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: opacity var(--transition-base);
+}
+
+.theme-toggle-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.theme-toggle-icon.sun {
+  color: #FBBF24;
+}
+
+.theme-toggle-icon.moon {
+  color: #E2E8F0;
+}
+
+/* Thumb */
+.theme-toggle-thumb {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform var(--transition-base), background var(--transition-base);
+  left: 3px;
+}
+
+.theme-toggle-thumb.light {
+  transform: translateX(0);
+}
+
+.theme-toggle-thumb.dark {
+  transform: translateX(28px);
+  background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .theme-toggle-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .theme-toggle-icon.sun {
+  opacity: 0.5;
+}
+
+[data-theme="light"] .theme-toggle-icon.moon {
+  opacity: 0.5;
+}
