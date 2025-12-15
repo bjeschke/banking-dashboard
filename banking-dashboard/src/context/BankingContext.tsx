@@ -1,16 +1,29 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { Transaction, TransactionFilter } from '../types';
 import { saveToStorage, loadFromStorage } from '../utils';
 import { mockTransactions, INITIAL_BALANCE } from '../data/mockData';
+import {
+  bankingReducer,
+  BankingState,
+  defaultFilter,
+  LastAction,
+} from '../reducers/bankingReducer';
+import {
+  validateAddTransaction,
+  validateUpdateTransaction,
+  calculateImportDelta,
+} from '../services/transactionService';
 
 interface BankingContextType {
+  // State
   balance: number;
   transactions: Transaction[];
   filter: TransactionFilter;
   currentPage: number;
-  lastAction: { type: string; data: any } | null;
+  lastAction: LastAction | null;
   editingTransaction: Transaction | null;
   reuseTransaction: Transaction | null;
+  // Actions
   addTransaction: (t: Transaction) => string | null;
   deleteTransaction: (id: string) => void;
   updateTransaction: (t: Transaction) => string | null;
@@ -23,140 +36,93 @@ interface BankingContextType {
   importTransactions: (txs: Transaction[]) => void;
 }
 
-const defaultFilter: TransactionFilter = {
-  type: 'all',
-  dateFrom: '',
-  dateTo: '',
-  searchTerm: '',
-};
-
 const BankingContext = createContext<BankingContextType | null>(null);
 
-export function BankingProvider({ children }: { children: ReactNode }) {
-  const [balance, setBalance] = useState(INITIAL_BALANCE);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [filter, setFilterState] = useState<TransactionFilter>(defaultFilter);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [reuseTransaction, setReuseTransaction] = useState<Transaction | null>(null);
+const initialState: BankingState = {
+  balance: INITIAL_BALANCE,
+  transactions: mockTransactions,
+  filter: defaultFilter,
+  currentPage: 1,
+  lastAction: null,
+  editingTransaction: null,
+  reuseTransaction: null,
+};
 
-  // load saved data on mount
+export function BankingProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(bankingReducer, initialState);
+
+  // Load saved data on mount
   useEffect(() => {
     const saved = loadFromStorage();
     if (saved?.transactions.length) {
-      setBalance(saved.balance);
-      setTransactions(saved.transactions);
+      dispatch({
+        type: 'LOAD_SAVED',
+        payload: { balance: saved.balance, transactions: saved.transactions },
+      });
     }
   }, []);
 
-  // persist changes
+  // Persist changes
   useEffect(() => {
-    saveToStorage(balance, transactions);
-  }, [balance, transactions]);
+    saveToStorage(state.balance, state.transactions);
+  }, [state.balance, state.transactions]);
 
+  // Action handlers that use the service for validation
   function addTransaction(t: Transaction): string | null {
-    // check if user has enough money for withdrawal
-    if (t.type === 'withdrawal' && t.amount > balance) {
-      return `Insufficient balance. Available: ${balance.toFixed(2)} EUR`;
+    const result = validateAddTransaction(t, state.balance);
+    if (!result.success) {
+      return result.error;
     }
-
-    const delta = t.type === 'deposit' ? t.amount : -t.amount;
-    setBalance(prev => prev + delta);
-    setTransactions(prev => [t, ...prev]);
-    setLastAction({ type: 'add', data: { transaction: t, prevBalance: balance } });
-    setCurrentPage(1);
+    dispatch({ type: 'ADD_TRANSACTION', payload: { transaction: t, delta: result.delta } });
     return null;
   }
 
-  function deleteTransaction(id: string) {
-    const t = transactions.find(tx => tx.id === id);
-    if (!t) return;
-
-    // reverse the transaction effect on balance
-    const delta = t.type === 'deposit' ? -t.amount : t.amount;
-    setBalance(prev => prev + delta);
-    setTransactions(prev => prev.filter(tx => tx.id !== id));
-    setLastAction({ type: 'delete', data: { transaction: t, prevBalance: balance } });
+  function deleteTransaction(id: string): void {
+    dispatch({ type: 'DELETE_TRANSACTION', payload: { id } });
   }
 
   function updateTransaction(t: Transaction): string | null {
-    const old = transactions.find(tx => tx.id === t.id);
-    if (!old) return 'Transaction not found';
-
-    // calc new balance: remove old effect, add new effect
-    let newBal = balance;
-    newBal += old.type === 'deposit' ? -old.amount : old.amount;
-    newBal += t.type === 'deposit' ? t.amount : -t.amount;
-
-    if (newBal < 0) {
-      return `This would result in negative balance: ${newBal.toFixed(2)} EUR`;
+    const oldTransaction = state.transactions.find(tx => tx.id === t.id);
+    if (!oldTransaction) {
+      return 'Transaction not found';
     }
 
-    setBalance(newBal);
-    setTransactions(prev => prev.map(tx => tx.id === t.id ? t : tx));
-    setLastAction({ type: 'edit', data: { oldTransaction: old, prevBalance: balance } });
-    setEditingTransaction(null);
+    const result = validateUpdateTransaction(t, oldTransaction, state.balance);
+    if (!result.success) {
+      return result.error;
+    }
+
+    dispatch({
+      type: 'UPDATE_TRANSACTION',
+      payload: { transaction: t, newBalance: result.newBalance, oldTransaction },
+    });
     return null;
   }
 
-  function undo() {
-    if (!lastAction) return;
-
-    const { type, data } = lastAction;
-
-    if (type === 'add') {
-      setTransactions(prev => prev.filter(t => t.id !== data.transaction.id));
-    } else if (type === 'delete') {
-      setTransactions(prev => [data.transaction, ...prev]);
-    } else if (type === 'edit') {
-      setTransactions(prev => prev.map(t =>
-        t.id === data.oldTransaction.id ? data.oldTransaction : t
-      ));
-    }
-
-    setBalance(data.prevBalance);
-    setLastAction(null);
-  }
-
-  function setFilter(f: Partial<TransactionFilter>) {
-    setFilterState(prev => ({ ...prev, ...f }));
-    setCurrentPage(1); // reset to first page on filter change
-  }
-
-  function resetFilter() {
-    setFilterState(defaultFilter);
-    setCurrentPage(1);
-  }
-
-  function importTransactions(txs: Transaction[]) {
-    // calc total balance change from imports
-    const delta = txs.reduce((sum, t) =>
-      sum + (t.type === 'deposit' ? t.amount : -t.amount), 0);
-
-    setBalance(prev => prev + delta);
-    setTransactions(prev => [...txs, ...prev]);
-    setLastAction(null); // can't undo bulk import
-    setCurrentPage(1);
+  function importTransactions(txs: Transaction[]): void {
+    const delta = calculateImportDelta(txs);
+    dispatch({ type: 'IMPORT_TRANSACTIONS', payload: { transactions: txs, delta } });
   }
 
   const ctx: BankingContextType = {
-    balance,
-    transactions,
-    filter,
-    currentPage,
-    lastAction,
-    editingTransaction,
-    reuseTransaction,
+    // State
+    balance: state.balance,
+    transactions: state.transactions,
+    filter: state.filter,
+    currentPage: state.currentPage,
+    lastAction: state.lastAction,
+    editingTransaction: state.editingTransaction,
+    reuseTransaction: state.reuseTransaction,
+    // Actions
     addTransaction,
     deleteTransaction,
     updateTransaction,
-    setFilter,
-    resetFilter,
-    setPage: setCurrentPage,
-    undo,
-    setEditingTransaction,
-    setReuseTransaction,
+    setFilter: (f) => dispatch({ type: 'SET_FILTER', payload: f }),
+    resetFilter: () => dispatch({ type: 'RESET_FILTER' }),
+    setPage: (p) => dispatch({ type: 'SET_PAGE', payload: p }),
+    undo: () => dispatch({ type: 'UNDO' }),
+    setEditingTransaction: (t) => dispatch({ type: 'SET_EDITING', payload: t }),
+    setReuseTransaction: (t) => dispatch({ type: 'SET_REUSE', payload: t }),
     importTransactions,
   };
 
