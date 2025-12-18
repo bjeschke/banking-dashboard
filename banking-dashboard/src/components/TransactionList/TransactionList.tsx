@@ -34,7 +34,6 @@ export default function TransactionList(): React.ReactElement {
         <span className="count">{filtered.length} entries</span>
       </div>
 
-      {/* filters */}
       <div className="filters">
         <input
           type="text"
@@ -71,7 +70,6 @@ export default function TransactionList(): React.ReactElement {
         <button onClick={resetFilter}>Reset</button>
       </div>
 
-      {/* transaction list */}
       <div className="list">
         {visible.length === 0 ? (
           <div className="empty">No transactions found</div>
@@ -106,7 +104,6 @@ export default function TransactionList(): React.ReactElement {
         )}
       </div>
 
-      {/* pagination */}
       {pageCount > 1 && (
         <div className="pagination">
           <button

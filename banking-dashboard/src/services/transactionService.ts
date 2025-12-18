@@ -12,9 +12,6 @@ export interface UpdateResult {
   newBalance: number;
 }
 
-/**
- * Validates and calculates the balance change for adding a transaction
- */
 export function validateAddTransaction(
   transaction: Transaction,
   currentBalance: number
@@ -36,9 +33,6 @@ export function validateAddTransaction(
   };
 }
 
-/**
- * Validates and calculates the new balance for updating a transaction
- */
 export function validateUpdateTransaction(
   newTransaction: Transaction,
   oldTransaction: Transaction,
@@ -64,9 +58,6 @@ export function validateUpdateTransaction(
   };
 }
 
-/**
- * Calculates the total balance change for importing multiple transactions
- */
 export function calculateImportDelta(transactions: Transaction[]): number {
   return transactions.reduce(
     (sum, t) => sum + (t.type === 'deposit' ? t.amount : -t.amount),
