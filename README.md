@@ -1,6 +1,18 @@
 # Banking Dashboard
 
-A simple banking dashboard built with React and TypeScript.
+A simple banking dashboard built with React and TypeScript. 
+It lets you track deposits and withdrawals, see your current balance, and filter through your transaction history.
+
+## Features
+
+- **Balance Overview** - Shows your current account balance along with total income and expenses
+- **Transaction Management** - Add deposits and withdrawals with descriptions and categories
+- **Filtering** - Search transactions by description, filter by type, or narrow down by date range
+- **Undo Support** You can undo your last action
+- **CSV Import/Export** - Bring in your existing data or export everything for backup
+- **Dark Mode**
+- **KES Conversion** - Automatically shows amounts in Kenyan Shillings using live exchange rates
+- **Persistent Storage** - Your data is saved in localStorage, so it survives page refreshes
 
 ## Getting Started
 
@@ -46,3 +58,10 @@ npm run build
 ```
 
 This creates an optimized build in the `build` folder.
+
+## Tech Stack
+
+- React 19
+- TypeScript
+- Jest for testing
+- CSS custom properties for theming
