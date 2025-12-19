@@ -9,6 +9,7 @@ dist/
 coverage/
 
 # IDE & Editor
+.idea/
 .vscode/
 *.iml
 
