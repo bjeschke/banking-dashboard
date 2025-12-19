@@ -4,9 +4,6 @@
   gap: var(--spacing-4);
 }
 
-/* ============================================
-   MAIN BALANCE CARD - Premium Design
-   ============================================ */
 .balance-card {
   background: linear-gradient(145deg, #0F2744 0%, #0A1628 100%);
   color: #FFFFFF;
@@ -78,9 +75,6 @@
   z-index: 1;
 }
 
-/* ============================================
-   SUMMARY CARDS
-   ============================================ */
 .balance-summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -125,19 +119,14 @@
   margin-top: var(--spacing-1);
 }
 
-/* Income Card Accent */
 .summary-item:first-child {
   border-left: 3px solid var(--color-success);
 }
 
-/* Expense Card Accent */
 .summary-item:last-child {
   border-left: 3px solid var(--color-danger);
 }
 
-/* ============================================
-   UNDO BUTTON
-   ============================================ */
 .undo-btn {
   padding: var(--spacing-4);
   background: var(--bg-card);
