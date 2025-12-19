@@ -93,13 +93,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color-light);
-  transition: transform var(--transition-base), box-shadow var(--transition-base), background var(--transition-slow);
-}
-
-.summary-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  background: var(--bg-card-hover);
 }
 
 .summary-item .label {
