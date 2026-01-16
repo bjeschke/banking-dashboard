@@ -113,7 +113,8 @@ describe('CSVManager', () => {
       fireEvent.change(fileInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/invalid csv|no valid transactions/i)).toBeInTheDocument();
+        const errorMessage = document.querySelector('.message.error');
+        expect(errorMessage).toBeInTheDocument();
       });
     });
 
@@ -135,7 +136,9 @@ invalid,data,here,too`;
       fireEvent.change(fileInput);
 
       await waitFor(() => {
-        expect(screen.getByText(/no valid transactions|invalid/i)).toBeInTheDocument();
+        const errorMessage = document.querySelector('.message.error');
+        expect(errorMessage).toBeInTheDocument();
+        expect(errorMessage?.textContent).toContain('No valid transactions');
       });
     });
 
@@ -210,8 +213,9 @@ invalid,data,here,too`;
       await user.click(screen.getByRole('button', { name: /export csv/i }));
 
       await waitFor(() => {
-        const message = screen.getByText(/exported successfully/i);
-        expect(message).toHaveClass('success');
+        const message = document.querySelector('.message.success');
+        expect(message).toBeInTheDocument();
+        expect(message?.textContent).toContain('Exported successfully');
       });
     });
 

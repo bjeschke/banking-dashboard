@@ -1,0 +1,98 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.ui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ui-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sizes */
+.ui-button--sm {
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-xs);
+}
+
+.ui-button--md {
+  padding: var(--spacing-3) var(--spacing-5);
+  font-size: var(--font-size-sm);
+}
+
+.ui-button--lg {
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-base);
+}
+
+/* Full width */
+.ui-button--full-width {
+  width: 100%;
+}
+
+/* Variants */
+.ui-button--primary {
+  background: linear-gradient(135deg, #1A365D 0%, #0F2744 100%);
+  color: #FFFFFF;
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .ui-button--primary {
+  background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #234E82 0%, #1A365D 100%);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .ui-button--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
+}
+
+.ui-button--secondary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ui-button--ghost {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+}
+
+.ui-button--ghost:hover:not(:disabled) {
+  background: var(--bg-filter);
+  color: var(--text-primary);
+}
+
+.ui-button--danger {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  background: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}

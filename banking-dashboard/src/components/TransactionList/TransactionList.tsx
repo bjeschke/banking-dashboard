@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useBanking } from '../../context/BankingContext';
 import { formatCurrency, formatDate, filterTransactions, sortByDate } from '../../utils';
 import { useExchangeRate, formatKes } from '../../services/exchangeRate';
@@ -24,7 +24,17 @@ export default function TransactionList(): React.ReactElement {
 
   const filtered = sortByDate(filterTransactions(transactions, filter));
   const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
-  const start = (currentPage - 1) * PAGE_SIZE;
+
+  // Fix pagination when currentPage exceeds pageCount (e.g., after deleting items)
+  useEffect(() => {
+    if (currentPage > pageCount && pageCount > 0) {
+      setPage(pageCount);
+    }
+  }, [currentPage, pageCount, setPage]);
+
+  // Use safe page value for calculations
+  const safePage = Math.min(currentPage, Math.max(1, pageCount));
+  const start = (safePage - 1) * PAGE_SIZE;
   const visible = filtered.slice(start, start + PAGE_SIZE);
 
   return (
@@ -107,15 +117,15 @@ export default function TransactionList(): React.ReactElement {
       {pageCount > 1 && (
         <div className="pagination">
           <button
-            disabled={currentPage === 1}
-            onClick={() => setPage(currentPage - 1)}
+            disabled={safePage === 1}
+            onClick={() => setPage(safePage - 1)}
           >
             Prev
           </button>
-          <span>{currentPage} / {pageCount}</span>
+          <span>{safePage} / {pageCount}</span>
           <button
-            disabled={currentPage === pageCount}
-            onClick={() => setPage(currentPage + 1)}
+            disabled={safePage === pageCount}
+            onClick={() => setPage(safePage + 1)}
           >
             Next
           </button>

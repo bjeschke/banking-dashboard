@@ -3,30 +3,42 @@ import { useBanking } from '../../context/BankingContext';
 import { parseCSV, exportToCSV, downloadFile } from '../../utils';
 import './CSVManager.css';
 
-type MessageType = { type: 'success' | 'error'; text: string };
+interface Message {
+  type: 'success' | 'error' | 'warning';
+  text: string;
+  details?: string[];
+}
 
 export default function CSVManager(): React.ReactElement {
   const { transactions, importTransactions } = useBanking();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [msg, setMsg] = useState<MessageType | null>(null);
+  const [msg, setMsg] = useState<Message | null>(null);
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      const content = await file.text();
-      const txns = parseCSV(content);
+    const content = await file.text();
+    const { transactions: txns, errors } = parseCSV(content);
 
-      if (txns.length === 0) {
-        setMsg({ type: 'error', text: 'No valid transactions found' });
-        return;
-      }
-
+    if (txns.length === 0 && errors.length > 0) {
+      setMsg({
+        type: 'error',
+        text: 'No valid transactions found',
+        details: errors.slice(0, 5),
+      });
+    } else if (txns.length === 0) {
+      setMsg({ type: 'error', text: 'No valid transactions found in CSV file' });
+    } else if (errors.length > 0) {
+      importTransactions(txns);
+      setMsg({
+        type: 'warning',
+        text: `Imported ${txns.length} transactions (${errors.length} rows skipped)`,
+        details: errors.slice(0, 5),
+      });
+    } else {
       importTransactions(txns);
       setMsg({ type: 'success', text: `Imported ${txns.length} transactions` });
-    } catch (err) {
-      setMsg({ type: 'error', text: 'Invalid CSV file format' });
     }
 
     // reset file input so same file can be selected again
@@ -63,7 +75,18 @@ export default function CSVManager(): React.ReactElement {
         </button>
         <button onClick={handleExport}>Export CSV</button>
       </div>
-      {msg && <div className={`message ${msg.type}`}>{msg.text}</div>}
+      {msg && (
+        <div className={`message ${msg.type}`}>
+          <span>{msg.text}</span>
+          {msg.details && msg.details.length > 0 && (
+            <ul className="message-details">
+              {msg.details.map((detail, i) => (
+                <li key={i}>{detail}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

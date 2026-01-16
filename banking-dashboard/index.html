@@ -6,9 +6,18 @@
     <meta name="theme-color" content="#1a73e8" />
     <meta name="description" content="Banking Dashboard - Track your transactions and account balance" />
     <title>Banking Dashboard</title>
+    <script>
+      (function() {
+        const stored = localStorage.getItem('banking-dashboard-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = stored || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

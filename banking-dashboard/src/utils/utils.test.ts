@@ -211,12 +211,13 @@ describe('parseCSV', () => {
 2024-12-13,50.00,Groceries,Withdrawal`;
 
     const result = parseCSV(csv);
-    expect(result).toHaveLength(2);
-    expect(result[0].date).toBe('2024-12-14');
-    expect(result[0].amount).toBe(100);
-    expect(result[0].description).toBe('Salary');
-    expect(result[0].type).toBe('deposit');
-    expect(result[1].type).toBe('withdrawal');
+    expect(result.transactions).toHaveLength(2);
+    expect(result.errors).toHaveLength(0);
+    expect(result.transactions[0].date).toBe('2024-12-14');
+    expect(result.transactions[0].amount).toBe(100);
+    expect(result.transactions[0].description).toBe('Salary');
+    expect(result.transactions[0].type).toBe('deposit');
+    expect(result.transactions[1].type).toBe('withdrawal');
   });
 
   it('should handle negative amounts (take absolute value)', () => {
@@ -224,22 +225,27 @@ describe('parseCSV', () => {
 2024-12-14,-50.00,Refund,Deposit`;
 
     const result = parseCSV(csv);
-    expect(result[0].amount).toBe(50);
+    expect(result.transactions[0].amount).toBe(50);
   });
 
-  it('should skip invalid rows', () => {
+  it('should collect errors for invalid rows', () => {
     const csv = `Date,Amount,Description,Type
 2024-12-14,100.00,Salary,Deposit
-invalid,row
+invalid-date,50,Test,Deposit
 2024-12-13,50.00,Groceries,Withdrawal`;
 
     const result = parseCSV(csv);
-    expect(result).toHaveLength(2);
+    expect(result.transactions).toHaveLength(2);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toContain('Row 3');
   });
 
-  it('should throw error for CSV with only header', () => {
+  it('should return error for CSV with only header', () => {
     const csv = 'Date,Amount,Description,Type';
-    expect(() => parseCSV(csv)).toThrow('Invalid CSV file');
+    const result = parseCSV(csv);
+    expect(result.transactions).toHaveLength(0);
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toContain('Invalid CSV file');
   });
 
   it('should generate unique IDs for imported transactions', () => {
@@ -248,8 +254,20 @@ invalid,row
 2024-12-13,50.00,Test2,Withdrawal`;
 
     const result = parseCSV(csv);
-    expect(result[0].id).not.toBe(result[1].id);
-    expect(result[0].id).toMatch(/^txn-/);
+    expect(result.transactions[0].id).not.toBe(result.transactions[1].id);
+    expect(result.transactions[0].id).toMatch(/^txn-/);
+  });
+
+  it('should report specific errors for missing fields', () => {
+    const csv = `Date,Amount,Description,Type
+2024-12-14,100.00,Salary,
+2024-12-15,,Test,Deposit`;
+
+    const result = parseCSV(csv);
+    expect(result.transactions).toHaveLength(0);
+    expect(result.errors).toHaveLength(2);
+    expect(result.errors[0]).toContain('Missing type');
+    expect(result.errors[1]).toContain('Missing amount');
   });
 });
 
